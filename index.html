@@ -115,7 +115,42 @@ header .sub{font-size:12px;color:rgba(255,255,255,.82);font-weight:600;margin-to
 .online-row .odot{width:8px;height:8px;border-radius:50%;background:#27AE60;flex-shrink:0;animation:pulse 1.5s ease-in-out infinite;}
 .online-empty{font-size:12px;color:#bbb;font-style:italic;}
 
-/* WORLD */
+/* WEATHER */
+.weather-bar{position:relative;z-index:10;text-align:center;margin-top:6px;}
+.weather-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);border-radius:20px;padding:5px 14px;backdrop-filter:blur(6px);}
+.weather-icon{font-size:20px;}
+.weather-text{font-size:12px;color:#fff;font-weight:700;}
+
+/* CONFETTI */
+.confetti-wrap{position:fixed;inset:0;pointer-events:none;z-index:500;overflow:hidden;}
+.conf{position:absolute;width:10px;height:10px;border-radius:2px;animation:confFall linear forwards;}
+@keyframes confFall{0%{transform:translateY(-20px) rotate(0deg);opacity:1;}100%{transform:translateY(110vh) rotate(720deg);opacity:0;}}
+
+/* LEADERBOARD */
+.leader-wrap{position:relative;z-index:10;max-width:700px;margin:10px auto 0;padding:0 18px;}
+.leader-card{background:rgba(255,255,255,.92);border-radius:18px;padding:14px 16px;backdrop-filter:blur(8px);}
+.leader-card h3{font-family:'Unbounded',sans-serif;font-size:13px;color:#333;margin-bottom:10px;}
+.leader-row{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #f5f5f5;}
+.leader-row:last-child{border-bottom:none;}
+.leader-pos{font-size:18px;width:28px;text-align:center;flex-shrink:0;}
+.leader-char{font-size:22px;flex-shrink:0;}
+.leader-info{flex:1;}
+.leader-name{font-size:13px;font-weight:800;color:#222;}
+.leader-sub{font-size:10px;color:#aaa;font-weight:600;}
+.leader-score{font-size:14px;font-weight:900;color:#7B2FBE;white-space:nowrap;}
+
+/* MAYOR MESSAGE */
+.mayor-wrap{position:relative;z-index:10;max-width:700px;margin:10px auto 0;padding:0 18px;}
+.mayor-card{background:linear-gradient(135deg,rgba(255,255,255,.92),rgba(255,248,220,.95));border-radius:18px;padding:14px 16px;backdrop-filter:blur(8px);display:flex;align-items:flex-start;gap:12px;}
+.mayor-avatar{font-size:36px;flex-shrink:0;}
+.mayor-body{}
+.mayor-title{font-size:10px;font-weight:800;color:#B8860B;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;}
+.mayor-text{font-size:13px;color:#333;font-weight:700;line-height:1.5;}
+
+/* SOUND TOGGLE */
+.sound-btn{background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.4);color:#fff;font-size:14px;width:32px;height:32px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+.sound-btn:hover{background:rgba(255,255,255,.3);}
+
 .world{position:relative;z-index:5;max-width:1440px;margin:14px auto 0;padding:0 14px;}
 .group-block{margin-bottom:18px;border:1.5px solid rgba(255,255,255,.22);border-radius:20px;padding:10px 12px 14px;backdrop-filter:blur(4px);}
 .group-header{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap;}
@@ -207,10 +242,33 @@ header .sub{font-size:12px;color:rgba(255,255,255,.82);font-weight:600;margin-to
     <button class="ctrl-btn"        id="sb-score" onclick="setSort('score',this)">По баллам</button>
     <button class="ctrl-btn"        id="sb-pct"   onclick="setSort('pct',this)">По % плана</button>
     <button class="ctrl-btn ref"                  onclick="reloadData()">🔄 Обновить</button>
+    <button class="sound-btn" id="soundBtn" onclick="toggleSound()" title="Звук">🔔</button>
     <!-- невидимая зона для входа в режим админа (5 кликов) -->
     <span id="secretTrigger" onclick="secretClick()"
           style="display:inline-block;width:18px;height:18px;cursor:default;opacity:0;user-select:none;"></span>
   </div>
+
+  <!-- погода -->
+  <div class="weather-bar">
+    <div class="weather-badge" id="weatherBadge" style="display:none;">
+      <span class="weather-icon" id="weatherIcon">☀️</span>
+      <span class="weather-text" id="weatherText">Солнечно в городе</span>
+    </div>
+  </div>
+
+  <!-- сообщение мэра -->
+  <div class="mayor-wrap" id="mayorWrap" style="display:none;">
+    <div class="mayor-card">
+      <div class="mayor-avatar">👴</div>
+      <div class="mayor-body">
+        <div class="mayor-title">📜 Указ мэра города</div>
+        <div class="mayor-text" id="mayorText"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- конфетти контейнер -->
+  <div class="confetti-wrap" id="confettiWrap"></div>
 
   <!-- онлайн-бейдж (только для admin) -->
   <div style="position:relative;z-index:10;text-align:center;margin-top:8px;">
@@ -317,6 +375,14 @@ header .sub{font-size:12px;color:rgba(255,255,255,.82);font-weight:600;margin-to
     </div>
   </div>
 
+  <!-- топ-3 лидеров -->
+  <div class="leader-wrap" id="leaderWrap" style="display:none;">
+    <div class="leader-card">
+      <h3>🏆 Топ-3 города сегодня</h3>
+      <div id="leaderList"></div>
+    </div>
+  </div>
+
   <div class="world" id="world"></div>
   <div class="flowers-row" id="flowers"></div>
   <div class="footer-ground"></div>
@@ -362,7 +428,7 @@ const USERS = {
 // Пример: 'https://script.google.com/macros/s/ABC.../exec'
 // Тогда данные будут грузиться у ВСЕХ автоматически
 const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzgD0ZmZaq_zZUKuntTbRjfD_L0ZTrQMtiyTWwg-Rr98qoZWdHGbmvEUhDBUhUOtap-Zw/exec';
-  
+
 const DEMO_RAW = [
   {realName:"Анна Смирнова",    group:"Дневные", score:148, plan:130},
   {realName:"Иван Петров",      group:"Дневные", score:98,  plan:130},
@@ -597,6 +663,17 @@ function renderWorld() {
 
   renderStats();
   renderFlowers();
+  updateWeather();
+  updateLeaderboard();
+  updateMayor();
+  saveSnapshot();
+
+  // Конфетти если 100%+
+  const tot = employees.reduce((s,e)=>s+e.score,0);
+  const pl  = employees.reduce((s,e)=>s+e.plan,0);
+  if (employees.length && Math.round(tot/pl*100) >= 100) {
+    setTimeout(()=>launchConfetti(3000), 600);
+  }
 }
 
 function renderStats() {
@@ -745,8 +822,13 @@ function connectScript() {
 }
 function fetchScript() {
   if (!scriptUrl) return;
-  fetch(scriptUrl)
-    .then(r => { if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+  fetch(scriptUrl, { redirect: 'follow' })
+    .then(r => {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      const ct = r.headers.get('content-type') || '';
+      if (!ct.includes('json')) throw new Error('Скрипт вернул не JSON — проверь деплой');
+      return r.json();
+    })
     .then(data => {
       if (!Array.isArray(data)||!data.length) throw new Error('Пустой ответ');
       const keys = Object.keys(data[0]);
@@ -760,7 +842,7 @@ function fetchScript() {
         plan:     Number(row[kP])||100,
       })).filter(r=>r.realName);
       employees = enrich(rows);
-      renderWorld(); updateTs('Google Sheets');
+      renderWorld(); updateTs('Google Sheets ✅');
       setStatus(`✅ ${employees.length} сотрудников загружено`, '#27AE60');
       if (autoTimer) clearInterval(autoTimer);
       autoTimer = setInterval(fetchScript, 5*60*1000);
@@ -906,7 +988,7 @@ function startApp() {
     updateTs('Загрузка...');
     renderWorld();
     fetchScript(); // сразу грузим реальные данные
-    if (currentRole === 'admin') toggleSetup(true);
+    if (currentRole === 'admin') { toggleSetup(true); addHistoryTab(); }
     if (fbUrl) initFirebase();
     return;
   }
@@ -937,13 +1019,271 @@ function startApp() {
   }
 
   renderWorld();
-  if (currentRole === 'admin') toggleSetup(true);
+  if (currentRole === 'admin') { toggleSetup(true); addHistoryTab(); }
   if (fbUrl) initFirebase();
 }
 
 // ════════════════════════════════════════
-//  INIT — проверяем сессию
+//  🌦 ПОГОДА — зависит от % выполнения команды
 // ════════════════════════════════════════
+const WEATHER_STATES = [
+  { min:100, icon:'🌟', sky1:'#1a3a6b', sky2:'#2e5fa3', sky3:'#8ecae6', text:'Звёздная ночь! Команда выполнила план!', ground1:'#2d6a4f', ground2:'#1b4332' },
+  { min:90,  icon:'☀️', sky1:'#3a9fd8', sky2:'#72c7f0', sky3:'#aee4f8', text:'Ясно и солнечно — почти у цели!',         ground1:'#7dce6e', ground2:'#3d8c3a' },
+  { min:75,  icon:'⛅', sky1:'#5b8fa8', sky2:'#89b4c8', sky3:'#c5dce8', text:'Переменная облачность — идём неплохо',     ground1:'#6db56d', ground2:'#3d8c3a' },
+  { min:50,  icon:'🌥️', sky1:'#7a8c99', sky2:'#a0b0bc', sky3:'#c8d8e0', text:'Пасмурно — команда старается',           ground1:'#5a9e5a', ground2:'#3d8c3a' },
+  { min:0,   icon:'🌧️', sky1:'#4a5568', sky2:'#718096', sky3:'#a0aec0', text:'Дождь в городе — нужно поднажать!',      ground1:'#4a8c4a', ground2:'#2d6a2d' },
+];
+
+function updateWeather() {
+  if (!employees.length) return;
+  const tot = employees.reduce((s,e)=>s+e.score,0);
+  const pl  = employees.reduce((s,e)=>s+e.plan,0);
+  const pct = Math.round(tot/pl*100);
+  const w   = WEATHER_STATES.find(s=>pct>=s.min) || WEATHER_STATES[WEATHER_STATES.length-1];
+
+  document.getElementById('weatherIcon').textContent = w.icon;
+  document.getElementById('weatherText').textContent = w.text;
+  document.getElementById('weatherBadge').style.display = 'inline-flex';
+
+  // Меняем небо
+  const sky = document.querySelector('.sky');
+  if (sky) sky.style.background = `linear-gradient(180deg,${w.sky1} 0%,${w.sky2} 38%,${w.sky3} 55%,${w.ground1} 55%,${w.ground2} 68%,#2d5a1b 100%)`;
+
+  // Дождь если плохо
+  showRain(pct < 50);
+}
+
+let rainInterval = null;
+function showRain(on) {
+  const existing = document.querySelectorAll('.rain-drop');
+  existing.forEach(e=>e.remove());
+  if (rainInterval) clearInterval(rainInterval);
+  if (!on) return;
+  rainInterval = setInterval(() => {
+    const drop = document.createElement('div');
+    drop.className = 'rain-drop';
+    drop.style.cssText = `position:fixed;top:-10px;left:${Math.random()*100}vw;width:2px;height:${8+Math.random()*12}px;background:rgba(180,210,255,.6);border-radius:1px;z-index:2;animation:confFall ${0.5+Math.random()*0.5}s linear forwards;pointer-events:none;`;
+    document.body.appendChild(drop);
+    setTimeout(()=>drop.remove(), 1000);
+  }, 40);
+}
+
+// ════════════════════════════════════════
+//  🎉 КОНФЕТТИ
+// ════════════════════════════════════════
+const CONF_COLORS = ['#f94144','#f3722c','#f8961e','#f9c74f','#90be6d','#43aa8b','#577590','#9b5de5','#f15bb5'];
+
+function launchConfetti(duration = 2500) {
+  if (!soundOn) return launchConfettiVisual(duration);
+  playSound('fanfare');
+  launchConfettiVisual(duration);
+}
+
+function launchConfettiVisual(duration) {
+  const wrap = document.getElementById('confettiWrap');
+  const end = Date.now() + duration;
+  const burst = () => {
+    if (Date.now() > end) return;
+    for (let i = 0; i < 8; i++) {
+      const c = document.createElement('div');
+      c.className = 'conf';
+      c.style.cssText = `left:${Math.random()*100}%;background:${CONF_COLORS[Math.floor(Math.random()*CONF_COLORS.length)]};width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>0.5?'50%':'2px'};animation-duration:${1.5+Math.random()*1.5}s;animation-delay:${Math.random()*0.3}s;`;
+      wrap.appendChild(c);
+      setTimeout(()=>c.remove(), 3000);
+    }
+    requestAnimationFrame(burst);
+  };
+  burst();
+}
+
+// ════════════════════════════════════════
+//  🏆 ЛИДЕРБОРД топ-3
+// ════════════════════════════════════════
+const MEDALS = ['🥇','🥈','🥉'];
+
+function updateLeaderboard() {
+  if (!employees.length) return;
+  const sorted = [...employees].sort((a,b)=>b.pct-a.pct).slice(0,3);
+  document.getElementById('leaderWrap').style.display = 'block';
+  document.getElementById('leaderList').innerHTML = sorted.map((e,i)=>`
+    <div class="leader-row">
+      <span class="leader-pos">${MEDALS[i]}</span>
+      <span class="leader-char">${e.char}</span>
+      <div class="leader-info">
+        <div class="leader-name">${e.nick}</div>
+        <div class="leader-sub">${e.realName} · ${GROUPS[e.group]?.label||e.group}</div>
+      </div>
+      <span class="leader-score">${e.score}б · ${e.pct}%</span>
+    </div>`).join('');
+}
+
+// ════════════════════════════════════════
+//  📜 УКАЗ МЭРА — мотивационное сообщение
+// ════════════════════════════════════════
+const MAYOR_MESSAGES = [
+  { min:100, msgs:["Горожане! Вы превзошли все ожидания! Объявляю праздник в честь команды! 🎉","Слава героям труда! Замки растут — план выполнен! Награды всем! 👑","Летопись города будет помнить этот день! Вы — легенды! 🏆"] },
+  { min:90,  msgs:["Почти у вершины, горожане! Ещё один рывок — и замки засияют! 💪","Город гордится вами! До победы — рукой подать! ⚔️","Отличная работа! Мэр видит ваши старания и аплодирует! 👏"] },
+  { min:75,  msgs:["Добротная работа, горожане! Дома крепнут, план растёт! 🏠","Город развивается! Сохраняем темп и идём к замкам! 🌟","Мэр доволен! Но хижинам пора превращаться в особняки! 🏛️"] },
+  { min:50,  msgs:["Горожане, дымок из труб не должен угасать! Поднажмём! 🔥","Половина пути пройдена. Вторая половина — веселее! 💨","Мэр верит в вас! Хижины не вечны — пора строить замки! 🏰"] },
+  { min:0,   msgs:["Горожане! Тучи над городом — но солнце всегда побеждает! ☀️","Мэр объявляет день трудовых подвигов! Все на баллы! ⚡","Дождь закалит наш город! Вперёд — к плану! 🌈"] },
+];
+
+function updateMayor() {
+  if (!employees.length) return;
+  const tot = employees.reduce((s,e)=>s+e.score,0);
+  const pl  = employees.reduce((s,e)=>s+e.plan,0);
+  const pct = Math.round(tot/pl*100);
+  const day = Math.floor(Date.now()/86400000);
+  const bucket = MAYOR_MESSAGES.find(m=>pct>=m.min);
+  const msg = bucket.msgs[day % bucket.msgs.length];
+  document.getElementById('mayorText').textContent = msg;
+  document.getElementById('mayorWrap').style.display = 'block';
+}
+
+// ════════════════════════════════════════
+//  🎵 ЗВУКИ
+// ════════════════════════════════════════
+let soundOn = true;
+let audioCtx = null;
+
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+
+function toggleSound() {
+  soundOn = !soundOn;
+  document.getElementById('soundBtn').textContent = soundOn ? '🔔' : '🔕';
+}
+
+function playSound(type) {
+  if (!soundOn) return;
+  try {
+    const ctx = getAudioCtx();
+    if (type === 'click') {
+      // Мягкий щелчок при открытии домика
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.frequency.setValueAtTime(520, ctx.currentTime);
+      o.frequency.exponentialRampToValueAtTime(380, ctx.currentTime+0.12);
+      g.gain.setValueAtTime(0.18, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+0.18);
+      o.start(); o.stop(ctx.currentTime+0.18);
+    } else if (type === 'fanfare') {
+      // Победный джингл
+      const notes = [523,659,784,1047];
+      notes.forEach((freq,i) => {
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.connect(g); g.connect(ctx.destination);
+        o.type = 'triangle';
+        o.frequency.value = freq;
+        g.gain.setValueAtTime(0, ctx.currentTime+i*0.12);
+        g.gain.linearRampToValueAtTime(0.22, ctx.currentTime+i*0.12+0.05);
+        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+i*0.12+0.25);
+        o.start(ctx.currentTime+i*0.12);
+        o.stop(ctx.currentTime+i*0.12+0.28);
+      });
+    } else if (type === 'level_up') {
+      // Звук повышения уровня
+      const notes = [392,523,659,784,1047];
+      notes.forEach((freq,i) => {
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.connect(g); g.connect(ctx.destination);
+        o.type = 'sine';
+        o.frequency.value = freq;
+        g.gain.setValueAtTime(0.15, ctx.currentTime+i*0.07);
+        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+i*0.07+0.18);
+        o.start(ctx.currentTime+i*0.07);
+        o.stop(ctx.currentTime+i*0.07+0.2);
+      });
+    }
+  } catch {}
+}
+
+// ════════════════════════════════════════
+//  📅 ИСТОРИЯ — сохраняем снапшот в конце дня
+// ════════════════════════════════════════
+const HISTORY_KEY = 'kcHistory6';
+const MAX_HISTORY = 14; // хранить 2 недели
+
+function saveSnapshot() {
+  if (!employees.length) return;
+  try {
+    const history = JSON.parse(localStorage.getItem(HISTORY_KEY)||'[]');
+    const today = new Date().toLocaleDateString('ru-RU',{day:'numeric',month:'short'});
+    // Не сохраняем если уже есть за сегодня
+    if (history[0]?.date === today) return;
+    const snap = {
+      date: today,
+      ts: Date.now(),
+      total: employees.reduce((s,e)=>s+e.score,0),
+      plan:  employees.reduce((s,e)=>s+e.plan,0),
+      pct:   Math.round(employees.reduce((s,e)=>s+e.score,0)/employees.reduce((s,e)=>s+e.plan,0)*100),
+      done:  employees.filter(e=>e.pct>=100).length,
+      total_emp: employees.length,
+    };
+    history.unshift(snap);
+    if (history.length > MAX_HISTORY) history.length = MAX_HISTORY;
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+  } catch {}
+}
+
+function renderHistory() {
+  try {
+    const history = JSON.parse(localStorage.getItem(HISTORY_KEY)||'[]');
+    if (!history.length) return '<div style="color:#bbb;font-style:italic;font-size:12px;">История пока пуста — появится после первого дня</div>';
+    return `<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:12px;">
+      <tr style="color:#888;font-weight:700;border-bottom:2px solid #f0f0f0;">
+        <th style="padding:6px 8px;text-align:left;">Дата</th>
+        <th style="padding:6px 8px;text-align:right;">Баллы</th>
+        <th style="padding:6px 8px;text-align:right;">% плана</th>
+        <th style="padding:6px 8px;text-align:right;">Выполнили</th>
+      </tr>
+      ${history.map(h=>`<tr style="border-bottom:1px solid #f7f7f7;">
+        <td style="padding:6px 8px;font-weight:700;color:#333;">${h.date}</td>
+        <td style="padding:6px 8px;text-align:right;color:#555;">${h.total}/${h.plan}</td>
+        <td style="padding:6px 8px;text-align:right;font-weight:900;color:${h.pct>=100?'#27AE60':h.pct>=75?'#F39C12':'#E74C3C'}">${h.pct}%</td>
+        <td style="padding:6px 8px;text-align:right;color:#555;">${h.done}/${h.total_emp}</td>
+      </tr>`).join('')}
+    </table></div>`;
+  } catch { return ''; }
+}
+
+// ════════════════════════════════════════
+//  Добавляем вкладку истории в панель
+// ════════════════════════════════════════
+function addHistoryTab() {
+  const tabs = document.querySelector('.tabs');
+  if (!tabs || document.getElementById('tab-history')) return;
+  const btn = document.createElement('button');
+  btn.className = 'tab';
+  btn.textContent = '📅 История';
+  btn.onclick = function(){ switchTab('history', this); renderHistoryTab(); };
+  tabs.appendChild(btn);
+  const content = document.createElement('div');
+  content.className = 'tab-content';
+  content.id = 'tab-history';
+  content.innerHTML = '<div id="historyContent"></div>';
+  tabs.parentElement.appendChild(content);
+}
+
+function renderHistoryTab() {
+  const el = document.getElementById('historyContent');
+  if (el) el.innerHTML = renderHistory();
+}
+
+// Перехватываем openPanel чтобы добавить звук
+const _origOpenPanel = openPanel;
+function openPanel(emp) {
+  playSound('click');
+  // Конфетти если замок
+  if (emp.pct >= 100) launchConfettiVisual(1500);
+  _origOpenPanel(emp);
+}
+
 (function init() {
   const role = sessionStorage.getItem(SESSION_KEY);
   if (role) {
