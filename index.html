@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Сказочный город КЦ</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Unbounded:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Nunito',sans-serif;min-height:100vh;overflow-x:hidden;background:#6ec6f5;}
+
+/* SKY */
+.sky{position:fixed;inset:0;background:linear-gradient(180deg,#3a9fd8 0%,#72c7f0 38%,#aee4f8 55%,#7dce6e 55%,#5db85a 68%,#3d8c3a 100%);z-index:0;}
+.sun{position:fixed;top:22px;right:5%;width:76px;height:76px;background:radial-gradient(circle,#fff5a0 30%,#ffd94a 60%,rgba(255,220,0,0)100%);border-radius:50%;animation:sunP 5s ease-in-out infinite;z-index:1;}
+@keyframes sunP{0%,100%{box-shadow:0 0 28px 8px rgba(255,220,0,.28);}50%{box-shadow:0 0 55px 18px rgba(255,220,0,.48);}}
+.cloud{position:fixed;background:#fff;border-radius:50px;opacity:.88;z-index:1;animation:cdrift linear infinite;}
+.cloud::before,.cloud::after{content:'';position:absolute;background:#fff;border-radius:50%;}
+.cl1{width:110px;height:36px;top:50px;left:-130px;animation-duration:62s;}.cl1::before{width:54px;height:54px;top:-22px;left:14px;}.cl1::after{width:40px;height:40px;top:-16px;left:56px;}
+.cl2{width:78px;height:27px;top:28px;left:26%;animation-duration:90s;animation-delay:-38s;}.cl2::before{width:40px;height:40px;top:-17px;left:10px;}.cl2::after{width:29px;height:29px;top:-11px;left:40px;}
+.cl3{width:128px;height:43px;top:82px;left:50%;animation-duration:78s;animation-delay:-24s;}.cl3::before{width:58px;height:58px;top:-25px;left:20px;}.cl3::after{width:46px;height:46px;top:-19px;left:65px;}
+.cl4{width:88px;height:30px;top:15px;left:68%;animation-duration:105s;animation-delay:-52s;}.cl4::before{width:44px;height:44px;top:-17px;left:12px;}.cl4::after{width:33px;height:33px;top:-13px;left:48px;}
+@keyframes cdrift{from{transform:translateX(0);}to{transform:translateX(115vw);}}
+
+/* LOGIN */
+#loginScreen{position:fixed;inset:0;z-index:999;background:linear-gradient(180deg,#3a9fd8 0%,#72c7f0 40%,#aee4f8 60%,#7dce6e 60%,#5db85a 72%,#3d8c3a 100%);display:flex;align-items:center;justify-content:center;}
+.login-sun{position:absolute;top:28px;right:8%;width:72px;height:72px;background:radial-gradient(circle,#fff5a0 30%,#ffd94a 60%,rgba(255,220,0,0)100%);border-radius:50%;animation:sunP 5s ease-in-out infinite;}
+.login-cloud{position:absolute;background:#fff;border-radius:50px;opacity:.85;}
+.login-cloud::before,.login-cloud::after{content:'';position:absolute;background:#fff;border-radius:50%;}
+.lc1{width:100px;height:34px;top:50px;left:5%;}.lc1::before{width:50px;height:50px;top:-20px;left:12px;}.lc1::after{width:36px;height:36px;top:-14px;left:52px;}
+.lc2{width:80px;height:28px;top:30px;right:18%;}.lc2::before{width:40px;height:40px;top:-16px;left:10px;}.lc2::after{width:28px;height:28px;top:-10px;left:40px;}
+.login-box{position:relative;z-index:2;background:rgba(255,255,255,.97);border-radius:24px;padding:36px 32px;width:100%;max-width:360px;text-align:center;box-shadow:0 16px 48px rgba(0,0,0,.15);}
+.login-castle{font-size:56px;margin-bottom:8px;display:block;animation:charBob 3s ease-in-out infinite;}
+.login-title{font-family:'Unbounded',sans-serif;font-size:18px;color:#222;margin-bottom:4px;}
+.login-sub{font-size:13px;color:#aaa;font-weight:600;margin-bottom:24px;}
+.login-field{width:100%;padding:11px 16px;border-radius:12px;border:1.5px solid #e0e0e0;font-family:'Nunito',sans-serif;font-size:15px;outline:none;transition:border .15s;text-align:center;letter-spacing:3px;margin-bottom:10px;}
+.login-field:focus{border-color:#4aabea;}
+.login-btn{width:100%;padding:12px;border-radius:12px;border:none;background:linear-gradient(135deg,#4aabea,#2e8fc7);color:#fff;font-family:'Unbounded',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:opacity .15s;}
+.login-btn:hover{opacity:.88;}
+.login-error{font-size:12px;color:#e74c3c;font-weight:700;margin-top:8px;min-height:18px;}
+.login-hint{font-size:11px;color:#bbb;margin-top:6px;}
+@keyframes shake{0%,100%{transform:translateX(0);}20%,60%{transform:translateX(-8px);}40%,80%{transform:translateX(8px);}}
+.shake{animation:shake .4s ease;}
+
+/* APP */
+#appContent{display:none;}
+header{position:relative;z-index:10;text-align:center;padding:16px 20px 0;}
+header h1{font-family:'Unbounded',sans-serif;font-size:clamp(15px,2.5vw,24px);color:#fff;text-shadow:0 2px 14px rgba(0,0,0,.28);}
+header .sub{font-size:12px;color:rgba(255,255,255,.82);font-weight:600;margin-top:3px;}
+
+.controls{position:relative;z-index:10;display:flex;justify-content:center;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 20px 0;}
+.ctrl-btn{background:rgba(255,255,255,.2);border:1.5px solid rgba(255,255,255,.5);color:#fff;font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;padding:5px 13px;border-radius:30px;cursor:pointer;backdrop-filter:blur(6px);transition:all .2s;}
+.ctrl-btn:hover,.ctrl-btn.active{background:rgba(255,255,255,.38);transform:translateY(-1px);}
+.ctrl-btn.ref{background:rgba(255,200,50,.3);}
+
+/* ONLINE BADGE — только для админа */
+.online-badge{display:none;background:rgba(255,255,255,.92);border-radius:20px;padding:5px 14px;font-size:12px;font-weight:800;color:#27AE60;position:relative;z-index:10;}
+.online-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#27AE60;margin-right:5px;animation:pulse 1.5s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+
+.stats-bar{position:relative;z-index:10;max-width:1200px;margin:10px auto 0;padding:0 18px;display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:7px;}
+.sc{background:rgba(255,255,255,.88);border-radius:14px;padding:9px 13px;backdrop-filter:blur(8px);}
+.sl{font-size:10px;color:#888;font-weight:700;text-transform:uppercase;letter-spacing:.4px;}
+.sv{font-size:21px;font-weight:900;font-family:'Unbounded',sans-serif;color:#222;line-height:1.1;margin-top:1px;}
+.ss{font-size:10px;color:#aaa;margin-top:1px;}
+
+.legend{position:relative;z-index:10;max-width:1200px;margin:7px auto 0;padding:0 18px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.li{display:flex;align-items:center;gap:5px;font-size:11px;color:rgba(255,255,255,.9);font-weight:700;}
+.ld{width:10px;height:10px;border-radius:2px;flex-shrink:0;}
+
+/* DATA PANEL */
+.datasrc{position:relative;z-index:10;max-width:900px;margin:10px auto 0;padding:0 18px;}
+.datasrc-inner{background:rgba(255,255,255,.96);border-radius:18px;overflow:hidden;}
+.tabs{display:flex;border-bottom:1px solid #eee;}
+.tab{flex:1;padding:11px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;border:none;background:none;cursor:pointer;color:#aaa;transition:all .15s;text-align:center;}
+.tab.active{color:#1A6BBF;border-bottom:2px solid #1A6BBF;margin-bottom:-1px;}
+.tab:hover:not(.active){color:#555;background:#fafafa;}
+.tab-content{display:none;padding:16px 18px;}
+.tab-content.active{display:block;}
+
+.data-table-wrap{overflow-x:auto;margin-bottom:10px;}
+.data-table{width:100%;border-collapse:collapse;font-size:13px;}
+.data-table th{text-align:left;padding:7px 10px;font-size:11px;font-weight:700;color:#888;text-transform:uppercase;border-bottom:2px solid #f0f0f0;white-space:nowrap;}
+.data-table td{padding:5px 4px;border-bottom:1px solid #f7f7f7;vertical-align:middle;}
+.data-table tr:last-child td{border-bottom:none;}
+.data-table input,.data-table select{width:100%;border:1.5px solid #e8e8e8;border-radius:7px;padding:5px 8px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:600;outline:none;background:#fff;color:#222;}
+.data-table input:focus,.data-table select:focus{border-color:#4aabea;}
+.del-btn{width:28px;height:28px;border-radius:7px;border:none;background:#fee;color:#e74c3c;cursor:pointer;font-size:14px;}
+.del-btn:hover{background:#fcc;}
+.add-row-btn{padding:7px 16px;border-radius:10px;border:1.5px dashed #c0d8f0;background:#f0f8ff;color:#1A6BBF;font-family:'Nunito',sans-serif;font-weight:800;font-size:12px;cursor:pointer;}
+.add-row-btn:hover{background:#daeeff;}
+.apply-btn{float:right;padding:7px 20px;border-radius:10px;border:none;background:#4aabea;color:#fff;font-family:'Nunito',sans-serif;font-weight:800;font-size:13px;cursor:pointer;}
+.apply-btn:hover{background:#2e8fc7;}
+
+.sh-step{display:flex;gap:12px;margin-bottom:14px;align-items:flex-start;}
+.sh-num{width:24px;height:24px;border-radius:50%;background:#4aabea;color:#fff;font-weight:900;font-size:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.sh-title{font-size:13px;font-weight:800;color:#222;margin-bottom:3px;}
+.sh-desc{font-size:12px;color:#666;line-height:1.5;}
+.sh-desc code{background:#f0f0f0;padding:2px 6px;border-radius:5px;font-size:11px;}
+.copy-box{display:flex;gap:8px;margin-top:6px;align-items:flex-start;}
+.code-block{background:#1e1e1e;color:#9cdcfe;font-family:monospace;font-size:10px;padding:10px 12px;border-radius:8px;flex:1;white-space:pre;overflow-x:auto;line-height:1.6;max-height:120px;}
+.copy-btn{padding:6px 12px;border-radius:8px;border:none;background:#4aabea;color:#fff;font-family:'Nunito',sans-serif;font-weight:800;font-size:11px;cursor:pointer;flex-shrink:0;}
+.url-row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;}
+.url-inp{flex:1;min-width:200px;padding:7px 12px;border-radius:10px;border:1.5px solid #e0e0e0;font-family:'Nunito',sans-serif;font-size:12px;outline:none;}
+.url-inp:focus{border-color:#4aabea;}
+.conn-btn{padding:7px 16px;border-radius:10px;border:none;background:#f9c74f;font-family:'Nunito',sans-serif;font-weight:800;font-size:13px;cursor:pointer;}
+.conn-btn:hover{background:#f3b800;}
+.gs-status{font-size:12px;font-weight:700;margin-top:6px;min-height:18px;}
+
+/* ONLINE PANEL (admin only) */
+.online-panel{background:rgba(255,255,255,.96);border-radius:14px;padding:12px 16px;margin-top:12px;}
+.online-panel h3{font-size:13px;font-weight:800;color:#333;margin-bottom:8px;}
+.online-list{display:flex;flex-direction:column;gap:5px;max-height:180px;overflow-y:auto;}
+.online-row{display:flex;align-items:center;gap:8px;font-size:12px;color:#555;padding:4px 0;border-bottom:1px solid #f5f5f5;}
+.online-row:last-child{border-bottom:none;}
+.online-row .odot{width:8px;height:8px;border-radius:50%;background:#27AE60;flex-shrink:0;animation:pulse 1.5s ease-in-out infinite;}
+.online-empty{font-size:12px;color:#bbb;font-style:italic;}
+
+/* WORLD */
+.world{position:relative;z-index:5;max-width:1440px;margin:14px auto 0;padding:0 14px;}
+.group-block{margin-bottom:18px;border:1.5px solid rgba(255,255,255,.22);border-radius:20px;padding:10px 12px 14px;backdrop-filter:blur(4px);}
+.group-header{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap;}
+.group-title{font-family:'Unbounded',sans-serif;font-size:12px;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.35);}
+.group-meta{font-size:11px;color:rgba(255,255,255,.75);font-weight:700;margin-left:auto;}
+.group-pbar-wrap{width:100%;height:6px;background:rgba(255,255,255,.2);border-radius:3px;overflow:hidden;margin-top:4px;}
+.group-pbar{height:100%;border-radius:3px;transition:width .6s;}
+.group-road{height:10px;background:#b89050;border-radius:5px;margin:0 4px 14px;opacity:.4;}
+.city-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:0 2px;align-items:end;}
+.hu{display:flex;flex-direction:column;align-items:center;cursor:pointer;transition:transform .22s cubic-bezier(.34,1.56,.64,1);}
+.hu:hover{transform:translateY(-7px) scale(1.05);}
+.hsvg{width:100%;max-width:112px;display:block;}
+.nameplate{margin-top:3px;text-align:center;max-width:122px;}
+.fairy-nick{font-size:11px;font-weight:900;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.45);line-height:1.2;}
+.real-name{font-size:9px;font-weight:700;color:rgba(255,255,255,.78);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:122px;}
+.score-badge{display:inline-block;font-size:10px;font-weight:900;padding:2px 8px;border-radius:11px;margin-top:2px;color:#fff;}
+.char-wrap{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;margin-right:2px;padding-bottom:5px;}
+.char-emoji{font-size:clamp(21px,2.6vw,30px);line-height:1;animation:charBob 3s ease-in-out infinite;display:inline-block;}
+@keyframes charBob{0%,100%{transform:translateY(0);}50%{transform:translateY(-4px);}}
+
+.flowers-row{position:relative;z-index:4;max-width:1440px;margin:2px auto 0;padding:2px 14px;display:flex;gap:8px;flex-wrap:wrap;}
+.fl{font-size:14px;animation:sway 2.5s ease-in-out infinite;display:inline-block;}
+.fl:nth-child(even){animation-delay:-1.2s;}
+@keyframes sway{0%,100%{transform:rotate(-6deg);}50%{transform:rotate(6deg);}}
+.footer-ground{height:50px;background:#3d8c3a;position:relative;z-index:3;}
+
+/* PANEL */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px;opacity:0;pointer-events:none;transition:opacity .25s;}
+.overlay.open{opacity:1;pointer-events:all;}
+.panel{background:#fff;border-radius:22px;padding:24px;max-width:400px;width:100%;position:relative;transform:scale(.95) translateY(16px);transition:transform .25s;max-height:90vh;overflow-y:auto;}
+.overlay.open .panel{transform:scale(1) translateY(0);}
+.pcls{position:absolute;top:13px;right:13px;width:30px;height:30px;border-radius:50%;border:none;background:#f0f0f0;cursor:pointer;font-size:15px;}
+.pcls:hover{background:#e0e0e0;}
+.p-hero{display:flex;align-items:flex-start;gap:12px;margin-bottom:14px;}
+.p-char{font-size:46px;line-height:1;}
+.p-info h2{font-size:17px;font-weight:800;color:#222;}
+.preal{font-size:11px;color:#999;font-weight:600;margin-top:2px;}
+.pgroup{font-size:11px;font-weight:700;margin-top:3px;}
+.pmood{font-size:13px;font-weight:800;margin-top:5px;}
+.p-tier{display:inline-flex;align-items:center;padding:5px 12px;border-radius:18px;font-size:12px;font-weight:800;margin-bottom:12px;}
+.mrow{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f3f3f3;}
+.mrow:last-child{border-bottom:none;}
+.mlabel{font-size:12px;color:#888;font-weight:600;}
+.mval{font-size:14px;font-weight:800;color:#222;}
+.prog-wrap{margin-top:12px;}
+.prog-head{display:flex;justify-content:space-between;font-size:11px;color:#999;font-weight:700;margin-bottom:5px;}
+.prog-track{height:11px;background:#f0f0f0;border-radius:10px;overflow:hidden;}
+.prog-fill{height:100%;border-radius:10px;transition:width .7s cubic-bezier(.34,1.2,.64,1);}
+.tier-desc{margin-top:12px;padding:10px 13px;border-radius:12px;font-size:12px;font-weight:700;line-height:1.5;}
+.quote-box{margin-top:12px;padding:12px 14px 10px;border-radius:14px;background:#f8f8f8;border-left:3px solid #ccc;position:relative;}
+.quote-box::before{content:'"';font-size:28px;color:#ddd;position:absolute;top:-2px;left:8px;line-height:1;}
+.quote-text{padding-left:12px;font-size:13px;font-style:italic;color:#555;line-height:1.5;}
+.quote-day{padding-left:12px;font-size:10px;color:#bbb;font-weight:700;margin-top:5px;}
+</style>
+</head>
+<body>
+
+<!-- ══ LOGIN ══ -->
+<div id="loginScreen">
+  <div class="login-sun"></div>
+  <div class="login-cloud lc1"></div>
+  <div class="login-cloud lc2"></div>
+  <div class="login-box" id="loginBox">
+    <span class="login-castle">🏰</span>
+    <div class="login-title">Сказочный город КЦ</div>
+    <div class="login-sub">Введите пароль для входа</div>
+    <input class="login-field" id="loginPwd" type="password" placeholder="••••••••"
+           onkeydown="if(event.key==='Enter')doLogin()"/>
+    <button class="login-btn" onclick="doLogin()">Войти →</button>
+    <div class="login-error"  id="loginError"></div>
+    <div class="login-hint"   id="loginHint"></div>
+  </div>
+</div>
+
+<!-- ══ APP ══ -->
+<div id="appContent">
+  <div class="sky"></div><div class="sun"></div>
+  <div class="cloud cl1"></div><div class="cloud cl2"></div>
+  <div class="cloud cl3"></div><div class="cloud cl4"></div>
+
+  <header>
+    <h1>🏰 Сказочный город КЦ</h1>
+    <p class="sub" id="ts">нажми на домик</p>
+  </header>
+
+  <!-- controls row -->
+  <div class="controls">
+    <button class="ctrl-btn active" id="sb-nick"  onclick="setSort('nick',this)">По нику</button>
+    <button class="ctrl-btn"        id="sb-score" onclick="setSort('score',this)">По баллам</button>
+    <button class="ctrl-btn"        id="sb-pct"   onclick="setSort('pct',this)">По % плана</button>
+    <button class="ctrl-btn ref"                  onclick="reloadData()">🔄 Обновить</button>
+    <!-- невидимая зона для входа в режим админа (5 кликов) -->
+    <span id="secretTrigger" onclick="secretClick()"
+          style="display:inline-block;width:18px;height:18px;cursor:default;opacity:0;user-select:none;"></span>
+  </div>
+
+  <!-- онлайн-бейдж (только для admin) -->
+  <div style="position:relative;z-index:10;text-align:center;margin-top:8px;">
+    <span class="online-badge" id="onlineBadge">
+      <span class="online-dot"></span><span id="onlineCount">0</span> онлайн
+    </span>
+  </div>
+
+  <div class="stats-bar" id="statsBar"></div>
+  <div class="legend">
+    <div class="li"><div class="ld" style="background:#922B21"></div>Хижина &lt;50%</div>
+    <div class="li"><div class="ld" style="background:#CA6F1E"></div>Домик 50–74%</div>
+    <div class="li"><div class="ld" style="background:#1A5276"></div>Дом 75–89%</div>
+    <div class="li"><div class="ld" style="background:#B8860B"></div>Особняк 90–99%</div>
+    <div class="li"><div class="ld" style="background:#7B2FBE"></div>Замок ≥100%</div>
+  </div>
+
+  <!-- DATA PANEL (admin only) -->
+  <div class="datasrc" id="setupPanel" style="display:none;">
+    <div class="datasrc-inner">
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab('manual',this)">✏️ Ввод вручную</button>
+        <button class="tab"        onclick="switchTab('sheets',this)">📊 Google Sheets</button>
+        <button class="tab"        onclick="switchTab('online',this)">👁 Онлайн</button>
+      </div>
+
+      <!-- MANUAL -->
+      <div class="tab-content active" id="tab-manual">
+        <div class="data-table-wrap">
+          <table class="data-table">
+            <thead><tr>
+              <th>Имя сотрудника</th><th>Группа</th>
+              <th>Баллы</th><th>План</th><th></th>
+            </tr></thead>
+            <tbody id="manualTbody"></tbody>
+          </table>
+        </div>
+        <button class="add-row-btn" onclick="addRow()">+ Добавить</button>
+        <button class="apply-btn"   onclick="applyManual()">Применить →</button>
+        <div style="clear:both;"></div>
+      </div>
+
+      <!-- SHEETS -->
+      <div class="tab-content" id="tab-sheets">
+        <div class="sh-step">
+          <div class="sh-num">1</div>
+          <div>
+            <div class="sh-title">Apps Script в таблице</div>
+            <div class="sh-desc">Расширения → Apps Script → вставь код:</div>
+            <div class="copy-box">
+              <pre class="code-block" id="scriptCode">function doGet() {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  const rows  = sheet.getDataRange().getValues();
+  const keys  = rows[0];
+  const data  = rows.slice(1).map(r =>
+    Object.fromEntries(keys.map((k,i) => [k, r[i]]))
+  );
+  return ContentService
+    .createTextOutput(JSON.stringify(data))
+    .setMimeType(ContentService.MimeType.JSON);
+}</pre>
+              <button class="copy-btn" onclick="copyScript()">📋 Скопировать</button>
+            </div>
+          </div>
+        </div>
+        <div class="sh-step">
+          <div class="sh-num">2</div>
+          <div>
+            <div class="sh-title">Развернуть → Веб-приложение → Доступ: Все</div>
+            <div class="sh-desc">Скопируй ссылку <code>.../exec</code></div>
+          </div>
+        </div>
+        <div class="sh-step">
+          <div class="sh-num">3</div>
+          <div>
+            <div class="sh-title">Вставь ссылку</div>
+            <div class="url-row">
+              <input class="url-inp" id="scriptUrl" placeholder="https://script.google.com/macros/s/.../exec"/>
+              <button class="conn-btn" onclick="connectScript()">Подключить →</button>
+            </div>
+            <div class="gs-status" id="gsStatus"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ONLINE TAB -->
+      <div class="tab-content" id="tab-online">
+        <div class="online-panel">
+          <h3>👁 Кто сейчас смотрит город</h3>
+          <div class="online-list" id="onlineList">
+            <div class="online-empty">Никого нет онлайн</div>
+          </div>
+        </div>
+        <div style="margin-top:12px;font-size:11px;color:#aaa;line-height:1.6;">
+          Счётчик работает через <strong>localStorage</strong> на одном устройстве.<br>
+          Для подсчёта с разных устройств подключи Firebase — вставь URL базы данных:<br>
+          <div class="url-row" style="margin-top:6px;">
+            <input class="url-inp" id="firebaseUrl" placeholder="https://your-project-rtdb.firebaseio.com"/>
+            <button class="conn-btn" onclick="connectFirebase()">Подключить →</button>
+          </div>
+          <div class="gs-status" id="fbStatus"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="world" id="world"></div>
+  <div class="flowers-row" id="flowers"></div>
+  <div class="footer-ground"></div>
+</div><!-- /appContent -->
+
+<!-- DETAIL PANEL -->
+<div class="overlay" id="ov" onclick="closePanelOv(event)">
+  <div class="panel">
+    <button class="pcls" onclick="closePanel()">✕</button>
+    <div class="p-hero">
+      <div class="p-char" id="pChar"></div>
+      <div class="p-info">
+        <h2 id="pNick"></h2>
+        <div class="preal"  id="pReal"></div>
+        <div class="pgroup" id="pGroup"></div>
+        <div class="pmood"  id="pMood"></div>
+      </div>
+    </div>
+    <div class="p-tier" id="pTier"></div>
+    <div id="pMetrics"></div>
+    <div class="prog-wrap">
+      <div class="prog-head"><span>Выполнение плана</span><span id="pPctLbl"></span></div>
+      <div class="prog-track"><div class="prog-fill" id="pBar"></div></div>
+    </div>
+    <div class="tier-desc" id="pTierDesc"></div>
+    <div class="quote-box" id="pQuoteBox">
+      <div class="quote-text" id="pQuote"></div>
+      <div class="quote-day"  id="pQuoteDay"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════
+//  НАСТРОЙКИ — меняй здесь
+// ════════════════════════════════════════
+const USERS = {
+  'team':  'город2025',   // пароль для сотрудников
+  'admin': 'admin2025',   // пароль администратора
+};
+
+// ← ВСТАВЬ СЮДА ССЫЛКУ НА ТВОЙ APPS SCRIPT
+// Пример: 'https://script.google.com/macros/s/ABC.../exec'
+// Тогда данные будут грузиться у ВСЕХ автоматически
+const SHEETS_URL = '';
+
+const DEMO_RAW = [
+  {realName:"Анна Смирнова",    group:"Дневные", score:148, plan:130},
+  {realName:"Иван Петров",      group:"Дневные", score:98,  plan:130},
+  {realName:"Ольга Яковлева",   group:"Дневные", score:117, plan:120},
+  {realName:"Андрей Котов",     group:"Дневные", score:61,  plan:130},
+  {realName:"Светлана Жарова",  group:"Ночные",  score:88,  plan:100},
+  {realName:"Дмитрий Малышев",  group:"Ночные",  score:76,  plan:100},
+  {realName:"Кирилл Горин",     group:"Ночные",  score:104, plan:100},
+  {realName:"Василина Мудрова", group:"Прозвон", score:54,  plan:80},
+  {realName:"Вадим Озёров",     group:"Прозвон", score:44,  plan:80},
+  {realName:"Снежана Морозова", group:"Прозвон", score:79,  plan:80},
+  {realName:"Леонид Лесных",    group:"Чат",     score:72,  plan:90},
+  {realName:"Жанна Цветкова",   group:"Чат",     score:91,  plan:90},
+  {realName:"Максим Орлов",     group:"Чат",     score:45,  plan:90},
+];
+
+// ════════════════════════════════════════
+//  КОНСТАНТЫ
+// ════════════════════════════════════════
+const GROUPS = {
+  'Дневные': {label:'☀️ Операторы дневные',  color:'#1A6BBF', bg:'rgba(26,107,191,.18)',  border:'rgba(100,170,255,.35)'},
+  'Ночные':  {label:'🌙 Операторы ночные',   color:'#6C3483', bg:'rgba(74,35,90,.22)',    border:'rgba(180,120,220,.35)'},
+  'Прозвон': {label:'📞 Менеджеры прозвона', color:'#7D6608', bg:'rgba(125,102,8,.18)',   border:'rgba(230,190,60,.35)'},
+  'Чат':     {label:'💬 Чатники',            color:'#1E6641', bg:'rgba(30,102,65,.2)',    border:'rgba(80,200,120,.35)'},
+};
+const GROUP_ORDER = ['Дневные','Ночные','Прозвон','Чат'];
+
+const NICK_POOL = ["Алиса Фея","Иван Богатырь","Баба-Яга","Кот Учёный","Жар-Птица","Домовёнок","Конёк-Горбунок","Василиса","Водяной","Снегурочка","Леший","Жар-Цветок","Кощей","Дюймовочка","Русалочка","Буратино","Мальвина","Тихоня-гном","Лисица-хитрица","Медведь-боярин","Волшебник","Пери","Аладдин","Золушка","Дракоша","Фея Крёстная","Добрыня","Соловей","Морской царь","Снежная дева"];
+const CHAR_POOL = ["🧚","⚔️","🔮","🐱","🦚","🏡","🦄","👸","🌊","❄️","🌿","🌸","💀","🌼","🧜","🪆","🩰","🧙","🦊","🐻","🌟","🎩","🕊️","🪄","👠","🐉","🌺","🛡️","🎭","👑"];
+
+const QUOTES = {
+  legend:   ["Пока другие пьют кофе — я уже выполнил план. И ещё раз.", "Сказали «100% — максимум». Я воспринял это как стартовую точку.", "Мой домик стал замком быстрее, чем босс написал «молодец».", "Тихо. Слышите? Это звук выполненного плана. Дважды.", "Говорят, у меня план. Я думал, это рекомендация."],
+  excellent:["99% — это 100% с налогом на самомнение.", "Подошёл к плану вплотную и пожал ему руку. Почти.", "Быть почти лучшим — это тоже талант.", "Мой домик смотрит на замок снизу вверх с уважением.", "Ещё чуть-чуть. Но сегодня — уже не сегодня."],
+  good:     ["Работаю в среднем темпе. Зато стабильно.", "Мой дом добротный. Не замок, но дует не очень.", "75–89%. Статистически нормально. Лично горжусь.", "Планомерно двигаюсь к успеху. Планомерно.", "Соседний домик выше, но у меня окна симпатичнее."],
+  trying:   ["Дымок из трубы — это не пожар, это я стараюсь.", "50% плана — стакан наполовину полон!", "Начал медленно. Продолжил медленно. Финал впереди.", "Говорят, главное — участие. Я участвую.", "Хижина станет замком. В следующем квартале."],
+  help:     ["У меня хижина, но зато я знаю где она находится.", "Дымок из трубы: печь ещё работает. Я тоже.", "Завтра будет лучше. Математически почти гарантировано.", "Я не проигрываю. Ищу нестандартные подходы.", "Мой результат сегодня — загадка даже для меня."],
+};
+
+const SESSION_KEY = 'kcAuth6';
+const ASSIGN_KEY  = 'kcAssign6';
+
+// ════════════════════════════════════════
+//  СОСТОЯНИЕ
+// ════════════════════════════════════════
+let employees = [];
+let sortMode = 'nick';
+let scriptUrl = null, autoTimer = null;
+let setupOpen = false;
+let manualRows = DEMO_RAW.map(r => ({...r}));
+let currentRole = null;
+
+// Firebase
+let fbUrl = localStorage.getItem('kcFbUrl') || '';
+let myFbKey = null;
+let fbPingTimer = null, fbPollTimer = null;
+
+// ════════════════════════════════════════
+//  НИКИ — детерминированные, без повторов
+//  Назначаются по порядку из списка,
+//  привязаны к имени через localStorage.
+//  Одинаковый результат на любом устройстве
+//  после первого назначения (если localStorage
+//  синхронизировать между устройствами
+//  нельзя — назначение идёт по хэшу имени).
+// ════════════════════════════════════════
+function strHash(s) {
+  let h = 5381;
+  for (let i = 0; i < s.length; i++) h = (Math.imul(h, 33) ^ s.charCodeAt(i)) >>> 0;
+  return h;
+}
+
+function getAssignments() {
+  try { return JSON.parse(localStorage.getItem(ASSIGN_KEY) || '{}'); } catch { return {}; }
+}
+function saveAssignments(o) {
+  try { localStorage.setItem(ASSIGN_KEY, JSON.stringify(o)); } catch {}
+}
+
+// Назначить всем сотрудникам ники — детерминированно и без повторов
+function assignAllIdentities(names) {
+  const saved = getAssignments();
+  const result = {};
+
+  // Сначала восстановим уже сохранённые
+  const usedNick = new Set();
+  const usedChar = new Set();
+  names.forEach(name => {
+    if (saved[name]) {
+      result[name] = saved[name];
+      usedNick.add(saved[name].nick);
+      usedChar.add(saved[name].char);
+    }
+  });
+
+  // Для новых имён назначаем по хэшу, избегая коллизий
+  names.forEach(name => {
+    if (result[name]) return;
+    const h = strHash(name);
+    let ni = h % NICK_POOL.length;
+    for (let i = 0; i < NICK_POOL.length; i++) {
+      if (!usedNick.has(NICK_POOL[ni])) break;
+      ni = (ni + 1) % NICK_POOL.length;
+    }
+    let ci = h % CHAR_POOL.length;
+    for (let i = 0; i < CHAR_POOL.length; i++) {
+      if (!usedChar.has(CHAR_POOL[ci])) break;
+      ci = (ci + 1) % CHAR_POOL.length;
+    }
+    result[name] = { nick: NICK_POOL[ni], char: CHAR_POOL[ci] };
+    usedNick.add(NICK_POOL[ni]);
+    usedChar.add(CHAR_POOL[ci]);
+  });
+
+  saveAssignments(result);
+  return result;
+}
+
+function enrich(rows) {
+  const names = rows.map(r => r.realName);
+  const ids = assignAllIdentities(names);
+  return rows.map(r => ({
+    ...r,
+    ...ids[r.realName],
+    pct: Math.round(r.score / r.plan * 100),
+  }));
+}
+
+// ════════════════════════════════════════
+//  DAILY QUOTE
+// ════════════════════════════════════════
+function getDayQuote(name, pct) {
+  const day = Math.floor(Date.now() / 86400000);
+  const h = strHash(name + day);
+  const pool = pct >= 100 ? QUOTES.legend : pct >= 90 ? QUOTES.excellent : pct >= 75 ? QUOTES.good : pct >= 50 ? QUOTES.trying : QUOTES.help;
+  return pool[h % pool.length];
+}
+
+// ════════════════════════════════════════
+//  TIER
+// ════════════════════════════════════════
+function getTier(p) {
+  if (p >= 100) return {id:5, name:'🏰 Замок',       roofC:'#7B2FBE', roofS:'#5B1F9E', wallC:'#F3E8FF', wallS:'#E0CAFF', doorC:'#9B59B6', winC:'#DCC8F8', accent:'#7B2FBE', accentL:'#F3E8FF', towers:true,  flags:true,  smoke:false, mood:'🤩 Легенда!',      barC:'#9B59B6', desc:'Выполнение 100%+. Настоящий герой!'};
+  if (p >= 90)  return {id:4, name:'🏛️ Особняк',     roofC:'#B8860B', roofS:'#8B6914', wallC:'#FFFDE7', wallS:'#FFF9C4', doorC:'#DAA520', winC:'#FFF59D', accent:'#B8860B', accentL:'#FFFDE7', towers:false, flags:true,  smoke:false, mood:'😄 Отличник!',     barC:'#F39C12', desc:'Выполнение 90–99%. Почти вершина!'};
+  if (p >= 75)  return {id:3, name:'🏠 Добротный дом',roofC:'#1A5276', roofS:'#154360', wallC:'#EBF5FB', wallS:'#D6EAF8', doorC:'#2E86C1', winC:'#AED6F1', accent:'#1A5276', accentL:'#D6EAF8', towers:false, flags:false, smoke:false, mood:'😊 Молодец',        barC:'#2980B9', desc:'Выполнение 75–89%. Хороший результат!'};
+  if (p >= 50)  return {id:2, name:'🏚️ Домик',        roofC:'#784212', roofS:'#5D3311', wallC:'#FEF5EC', wallS:'#FDEBD0', doorC:'#CD853F', winC:'#F0D9B5', accent:'#784212', accentL:'#FDEBD0', towers:false, flags:false, smoke:true,  mood:'😐 Старается',    barC:'#CA6F1E', desc:'Выполнение 50–74%. Нужно поднажать!'};
+  return        {id:1, name:'🛖 Хижина',              roofC:'#6E2C00', roofS:'#4A1A00', wallC:'#FEF9E7', wallS:'#FADBD8', doorC:'#922B21', winC:'#F5CBA7', accent:'#922B21', accentL:'#FADBD8', towers:false, flags:false, smoke:true,  mood:'😢 Нужна помощь', barC:'#E74C3C', desc:'Менее 50%. Нужна поддержка!'};
+}
+
+// ════════════════════════════════════════
+//  HOUSE SVG
+// ════════════════════════════════════════
+function buildSVG(emp) {
+  const t = getTier(emp.pct);
+  const nS = emp.pct>=100?3:emp.pct>=90?2:emp.pct>=75?1:0;
+  const ss = '★'.repeat(nS) + '☆'.repeat(3-nS);
+  const rT = t.id===5?10:t.id===4?16:t.id===3?20:t.id===2?26:32;
+  const rB = t.id>=4?50:t.id===3?54:58;
+  const wH = t.id===5?90:t.id===4?82:t.id===3?74:t.id===2?66:58;
+  const sH = rB+wH+22, dW = t.id>=4, wY = rB+11, dY = rB+wH-32, tY = rB+wH+2;
+  let o = `<svg class="hsvg" viewBox="0 0 100 ${sH}" xmlns="http://www.w3.org/2000/svg">`;
+  if (t.smoke) o += `<ellipse cx="70" cy="${rT-8}" rx="5" ry="8" fill="#bbb" opacity=".44"/><ellipse cx="73" cy="${rT-17}" rx="4" ry="6" fill="#ccc" opacity=".28"/><ellipse cx="71" cy="${rT-25}" rx="3" ry="5" fill="#ddd" opacity=".18"/>`;
+  if (t.towers) o += `<rect x="2" y="${rB-28}" width="18" height="${wH+28}" fill="${t.wallC}" stroke="${t.roofS}" stroke-width=".8" rx="2"/><polygon points="2,${rB-28} 11,${rB-50} 20,${rB-28}" fill="${t.roofC}"/><rect x="80" y="${rB-28}" width="18" height="${wH+28}" fill="${t.wallC}" stroke="${t.roofS}" stroke-width=".8" rx="2"/><polygon points="80,${rB-28} 89,${rB-50} 98,${rB-28}" fill="${t.roofC}"/><rect x="4" y="${rB-32}" width="4" height="6" fill="${t.roofC}" rx="1"/><rect x="11" y="${rB-32}" width="4" height="6" fill="${t.roofC}" rx="1"/><rect x="82" y="${rB-32}" width="4" height="6" fill="${t.roofC}" rx="1"/><rect x="89" y="${rB-32}" width="4" height="6" fill="${t.roofC}" rx="1"/>`;
+  if (t.flags) { o += `<rect x="49" y="${rT}" width="2" height="14" fill="#888"/><polygon points="51,${rT} 64,${rT+6} 51,${rT+12}" fill="#E74C3C"/>`; if (t.towers) o += `<rect x="10" y="${rB-54}" width="1.5" height="12" fill="#888"/><polygon points="11.5,${rB-54} 21,${rB-49} 11.5,${rB-44}" fill="#3498DB"/><rect x="88" y="${rB-54}" width="1.5" height="12" fill="#888"/><polygon points="89.5,${rB-54} 99,${rB-49} 89.5,${rB-44}" fill="#3498DB"/>` }
+  o += `<rect x="63" y="${rT+8}" width="10" height="18" fill="${t.wallS}" stroke="${t.roofS}" stroke-width=".7" rx="1"/>`;
+  o += `<polygon points="8,${rB} 50,${rT} 92,${rB}" fill="${t.roofC}"/><polygon points="8,${rB} 50,${rT} 92,${rB}" fill="rgba(0,0,0,.06)"/>`;
+  o += `<text x="50" y="${rB-3}" text-anchor="middle" font-size="9" fill="rgba(255,255,255,.9)" font-family="sans-serif">${ss}</text>`;
+  o += `<rect x="10" y="${rB}" width="80" height="${wH}" fill="${t.wallC}" rx="3"/>`;
+  if (t.id===5) o += `<line x1="10" y1="${rB+wH/2}" x2="90" y2="${rB+wH/2}" stroke="${t.roofS}" stroke-width=".5" opacity=".3"/>`;
+  if (dW) o += `<rect x="13" y="${wY}" width="14" height="12" fill="${t.winC}" rx="2"/><line x1="20" y1="${wY}" x2="20" y2="${wY+12}" stroke="${t.roofS}" stroke-width=".6" opacity=".4"/><rect x="31" y="${wY}" width="14" height="12" fill="${t.winC}" rx="2"/><line x1="38" y1="${wY}" x2="38" y2="${wY+12}" stroke="${t.roofS}" stroke-width=".6" opacity=".4"/><rect x="55" y="${wY}" width="14" height="12" fill="${t.winC}" rx="2"/><line x1="62" y1="${wY}" x2="62" y2="${wY+12}" stroke="${t.roofS}" stroke-width=".6" opacity=".4"/><rect x="73" y="${wY}" width="14" height="12" fill="${t.winC}" rx="2"/><line x1="80" y1="${wY}" x2="80" y2="${wY+12}" stroke="${t.roofS}" stroke-width=".6" opacity=".4"/>`;
+  else o += `<rect x="13" y="${wY}" width="18" height="14" fill="${t.winC}" rx="2"/><line x1="22" y1="${wY}" x2="22" y2="${wY+14}" stroke="${t.roofS}" stroke-width=".7" opacity=".4"/><line x1="13" y1="${wY+7}" x2="31" y2="${wY+7}" stroke="${t.roofS}" stroke-width=".7" opacity=".4"/><rect x="69" y="${wY}" width="18" height="14" fill="${t.winC}" rx="2"/><line x1="78" y1="${wY}" x2="78" y2="${wY+14}" stroke="${t.roofS}" stroke-width=".7" opacity=".4"/><line x1="69" y1="${wY+7}" x2="87" y2="${wY+7}" stroke="${t.roofS}" stroke-width=".7" opacity=".4"/>`;
+  o += `<rect x="38" y="${dY}" width="24" height="32" fill="${t.doorC}" rx="4"/><rect x="38" y="${dY}" width="24" height="32" fill="rgba(255,255,255,.15)" rx="4"/><circle cx="59" cy="${dY+17}" r="2" fill="rgba(0,0,0,.25)"/>`;
+  o += `<rect x="22" y="${tY}" width="56" height="14" fill="${t.accent}" rx="7"/><text x="50" y="${tY+10.5}" text-anchor="middle" font-size="7.5" fill="white" font-family="Nunito,sans-serif" font-weight="900">${emp.score}/${emp.plan}б</text>`;
+  return o + '</svg>';
+}
+
+// ════════════════════════════════════════
+//  RENDER WORLD
+// ════════════════════════════════════════
+function renderWorld() {
+  const world = document.getElementById('world');
+  world.innerHTML = '';
+  const byG = {};
+  employees.forEach(e => { if (!byG[e.group]) byG[e.group]=[]; byG[e.group].push(e); });
+  const activeG = [...GROUP_ORDER, ...Object.keys(byG).filter(g=>!GROUP_ORDER.includes(g))].filter(g=>byG[g]?.length);
+
+  activeG.forEach((gKey, gi) => {
+    const gC = GROUPS[gKey] || {label:'👥 '+gKey, color:'#555', bg:'rgba(0,0,0,.12)', border:'rgba(255,255,255,.2)'};
+    const members = [...byG[gKey]];
+    if (sortMode==='score') members.sort((a,b)=>b.score-a.score);
+    else if (sortMode==='pct') members.sort((a,b)=>b.pct-a.pct);
+    else members.sort((a,b)=>a.nick.localeCompare(b.nick,'ru'));
+
+    const gTot = members.reduce((s,e)=>s+e.score,0);
+    const gPl  = members.reduce((s,e)=>s+e.plan,0);
+    const gPct = Math.round(gTot/gPl*100);
+    const gDone= members.filter(e=>e.pct>=100).length;
+    const bC   = gPct>=100?'#4CAF50':gPct>=75?'#FFC107':'#f44336';
+
+    const blk = document.createElement('div');
+    blk.className = 'group-block';
+    blk.style.cssText = `background:${gC.bg};border-color:${gC.border};`;
+    blk.innerHTML = `<div class="group-header">
+      <span style="font-size:20px">${gC.label.split(' ')[0]}</span>
+      <span class="group-title">${gC.label.replace(/^\S+\s/,'')}</span>
+      <span class="group-meta">${gDone}/${members.length} выполнили · ${gPct}% · ${gTot}/${gPl}б</span>
+      <div style="width:100%"><div class="group-pbar-wrap"><div class="group-pbar" style="width:${Math.min(gPct,100)}%;background:${bC}"></div></div></div>
+    </div>`;
+
+    const grid = document.createElement('div');
+    grid.className = 'city-grid';
+    members.forEach((emp, i) => {
+      const t = getTier(emp.pct);
+      const hu = document.createElement('div');
+      hu.className = 'hu';
+      hu.innerHTML = `
+        <div style="display:flex;align-items:flex-end;justify-content:center;width:100%;gap:2px;">
+          <div class="char-wrap"><span class="char-emoji" style="animation-delay:${(i*.4%3).toFixed(1)}s">${emp.char}</span></div>
+          ${buildSVG(emp)}
+        </div>
+        <div class="nameplate">
+          <div class="fairy-nick">${emp.nick}</div>
+          <div class="real-name">${emp.realName}</div>
+          <div class="score-badge" style="background:${t.accent}">${emp.pct}%</div>
+        </div>`;
+      hu.addEventListener('click', () => openPanel(emp));
+      grid.appendChild(hu);
+    });
+    blk.appendChild(grid);
+    world.appendChild(blk);
+    if (gi < activeG.length-1) { const r=document.createElement('div'); r.className='group-road'; world.appendChild(r); }
+  });
+
+  renderStats();
+  renderFlowers();
+}
+
+function renderStats() {
+  const tot  = employees.reduce((s,e)=>s+e.score,0);
+  const pl   = employees.reduce((s,e)=>s+e.plan,0);
+  const done = employees.filter(e=>e.pct>=100).length;
+  const best = employees.reduce((b,e)=>e.score>b.score?e:b, employees[0]);
+  const tP   = Math.round(tot/pl*100);
+  document.getElementById('statsBar').innerHTML = `
+    <div class="sc"><div class="sl">Баллов всего</div><div class="sv">${tot}</div><div class="ss">план ${pl}</div></div>
+    <div class="sc"><div class="sl">Выполнение</div><div class="sv" style="color:${tP>=100?'#27AE60':tP>=75?'#F39C12':'#E74C3C'}">${tP}%</div><div class="ss">команда</div></div>
+    <div class="sc"><div class="sl">Выполнили план</div><div class="sv" style="color:#27AE60">${done}</div><div class="ss">из ${employees.length}</div></div>
+    <div class="sc"><div class="sl">Лидер дня</div><div class="sv" style="font-size:14px;padding-top:3px;">${best.char} ${best.nick.split(' ')[0]}</div><div class="ss">${best.score}б · ${best.pct}%</div></div>`;
+}
+
+function renderFlowers() {
+  const fl = ['🌸','🌼','🌺','🌻','🌹','🌷','🍀','🌾'];
+  document.getElementById('flowers').innerHTML = Array.from({length:26},(_,i)=>
+    `<span class="fl" style="animation-delay:${(i*.3%3).toFixed(1)}s">${fl[i%fl.length]}</span>`).join('');
+}
+
+function updateTs(src) {
+  const n = new Date();
+  document.getElementById('ts').textContent = `${src} · ${n.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})} · ${n.toLocaleDateString('ru-RU',{day:'numeric',month:'long'})}`;
+}
+
+// ════════════════════════════════════════
+//  DETAIL PANEL
+// ════════════════════════════════════════
+function openPanel(emp) {
+  const t  = getTier(emp.pct);
+  const gC = GROUPS[emp.group] || {label:'👥 '+emp.group, color:'#555'};
+  document.getElementById('pChar').textContent  = emp.char;
+  document.getElementById('pNick').textContent  = emp.nick;
+  document.getElementById('pReal').textContent  = '👤 '+emp.realName;
+  document.getElementById('pGroup').textContent = gC.label;
+  document.getElementById('pGroup').style.color = gC.color;
+  document.getElementById('pMood').textContent  = t.mood;
+  document.getElementById('pMood').style.color  = t.accent;
+  const tierEl = document.getElementById('pTier');
+  tierEl.textContent = t.name; tierEl.style.background = t.accentL; tierEl.style.color = t.accent;
+  document.getElementById('pPctLbl').textContent = emp.pct+'%';
+  const bar = document.getElementById('pBar');
+  bar.style.background = t.barC; bar.style.width = '0%';
+  document.getElementById('pMetrics').innerHTML = `
+    <div class="mrow"><span class="mlabel">⭐ Баллов набрано</span><span class="mval">${emp.score}</span></div>
+    <div class="mrow"><span class="mlabel">🎯 План группы</span><span class="mval">${emp.plan} б.</span></div>
+    <div class="mrow"><span class="mlabel">📈 Выполнение</span><span class="mval" style="color:${t.barC}">${emp.pct}%</span></div>
+    <div class="mrow"><span class="mlabel">🏠 Уровень дома</span><span class="mval">${t.name}</span></div>`;
+  const td = document.getElementById('pTierDesc');
+  td.style.background = t.accentL; td.style.color = t.accent; td.textContent = t.desc;
+  document.getElementById('pQuote').textContent   = getDayQuote(emp.realName, emp.pct);
+  document.getElementById('pQuoteBox').style.borderLeftColor = t.accent;
+  document.getElementById('pQuoteDay').textContent = '📅 Поговорка дня · '+new Date().toLocaleDateString('ru-RU',{day:'numeric',month:'long'});
+  document.getElementById('ov').classList.add('open');
+  setTimeout(() => { bar.style.width = Math.min(emp.pct,100)+'%'; }, 80);
+}
+function closePanel()     { document.getElementById('ov').classList.remove('open'); }
+function closePanelOv(e)  { if (e.target===document.getElementById('ov')) closePanel(); }
+
+// ════════════════════════════════════════
+//  SORT / RELOAD
+// ════════════════════════════════════════
+function setSort(mode, btn) {
+  sortMode = mode;
+  document.querySelectorAll('.ctrl-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderWorld();
+}
+function reloadData() { if (scriptUrl) fetchScript(); else renderWorld(); }
+
+// ════════════════════════════════════════
+//  MANUAL TABLE
+// ════════════════════════════════════════
+const GROUP_OPTIONS = ['Дневные','Ночные','Прозвон','Чат'];
+
+function renderManualTable() {
+  const tb = document.getElementById('manualTbody');
+  tb.innerHTML = '';
+  manualRows.forEach((row, i) => {
+    const opts = GROUP_OPTIONS.map(g=>`<option value="${g}"${g===row.group?' selected':''}>${g}</option>`).join('');
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><input value="${row.realName}" oninput="manualRows[${i}].realName=this.value" placeholder="Имя Фамилия"/></td>
+      <td><select onchange="manualRows[${i}].group=this.value">${opts}</select></td>
+      <td><input type="number" value="${row.score}" oninput="manualRows[${i}].score=+this.value" style="width:70px"/></td>
+      <td><input type="number" value="${row.plan}"  oninput="manualRows[${i}].plan=+this.value"  style="width:70px"/></td>
+      <td><button class="del-btn" onclick="delRow(${i})">✕</button></td>`;
+    tb.appendChild(tr);
+  });
+}
+function addRow()  { manualRows.push({realName:'',group:'Дневные',score:0,plan:100}); renderManualTable(); }
+function delRow(i) { manualRows.splice(i,1); renderManualTable(); }
+function applyManual() {
+  const valid = manualRows.filter(r=>r.realName.trim()&&r.plan>0);
+  if (!valid.length) { alert('Добавь хотя бы одного сотрудника'); return; }
+  const rows = valid.map(r=>({...r, realName:r.realName.trim()}));
+  // Сохраняем в localStorage
+  try { localStorage.setItem('kcData6', JSON.stringify({ source:'manual', rows })); } catch {}
+  employees = enrich(rows);
+  renderWorld(); updateTs('Ручной ввод');
+  toggleSetup(false);
+}
+
+// ════════════════════════════════════════
+//  TABS
+// ════════════════════════════════════════
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-'+name).classList.add('active');
+}
+
+// ════════════════════════════════════════
+//  ADMIN SECRET ENTRY (5 кликов по невидимой зоне)
+// ════════════════════════════════════════
+let secretClicks = 0, secretTimer = null;
+function secretClick() {
+  secretClicks++;
+  clearTimeout(secretTimer);
+  secretTimer = setTimeout(()=>{ secretClicks=0; }, 2000);
+  if (secretClicks >= 5) {
+    secretClicks = 0;
+    const pwd = prompt('🔐 Пароль администратора:');
+    if (pwd === null) return;
+    if (pwd === USERS.admin) toggleSetup(true);
+  }
+}
+
+function toggleSetup(force) {
+  setupOpen = force !== undefined ? force : !setupOpen;
+  document.getElementById('setupPanel').style.display = setupOpen ? 'block' : 'none';
+  if (setupOpen) renderManualTable();
+}
+
+// ════════════════════════════════════════
+//  GOOGLE SHEETS
+// ════════════════════════════════════════
+function connectScript() {
+  const url = document.getElementById('scriptUrl').value.trim();
+  if (!url) { setStatus('⚠️ Вставь ссылку','#e67e22'); return; }
+  scriptUrl = url;
+  try { localStorage.setItem('kcData6', JSON.stringify({ source:'sheets', url })); } catch {}
+  setStatus('⏳ Подключаемся...','#888'); fetchScript();
+}
+function fetchScript() {
+  if (!scriptUrl) return;
+  fetch(scriptUrl)
+    .then(r => { if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+    .then(data => {
+      if (!Array.isArray(data)||!data.length) throw new Error('Пустой ответ');
+      const keys = Object.keys(data[0]);
+      const fk = v => keys.find(k=>v.some(x=>k.toLowerCase().includes(x)));
+      const kN=fk(['имя','name']), kG=fk(['группа','group']), kS=fk(['балл','score','факт']), kP=fk(['план','plan']);
+      if (!kN||!kS||!kP) throw new Error('Нужны колонки: Имя, Баллы, План');
+      const rows = data.map(row=>({
+        realName: String(row[kN]||'').trim(),
+        group:    kG ? String(row[kG]||'Дневные').trim() : 'Дневные',
+        score:    Number(row[kS])||0,
+        plan:     Number(row[kP])||100,
+      })).filter(r=>r.realName);
+      employees = enrich(rows);
+      renderWorld(); updateTs('Google Sheets');
+      setStatus(`✅ ${employees.length} сотрудников загружено`, '#27AE60');
+      if (autoTimer) clearInterval(autoTimer);
+      autoTimer = setInterval(fetchScript, 5*60*1000);
+    })
+    .catch(e => setStatus('❌ '+e.message, '#e74c3c'));
+}
+function setStatus(m,c) { const el=document.getElementById('gsStatus'); el.textContent=m; el.style.color=c; }
+function copyScript() {
+  navigator.clipboard.writeText(document.getElementById('scriptCode').textContent).then(()=>{
+    const b=document.querySelector('.copy-btn'); b.textContent='✅ Скопировано!';
+    setTimeout(()=>b.textContent='📋 Скопировать', 2000);
+  });
+}
+
+// ════════════════════════════════════════
+//  ОНЛАЙН-СЧЁТЧИК через Firebase
+// ════════════════════════════════════════
+function connectFirebase() {
+  const url = document.getElementById('firebaseUrl').value.trim().replace(/\/+$/,'');
+  if (!url) return;
+  fbUrl = url;
+  localStorage.setItem('kcFbUrl', fbUrl);
+  document.getElementById('fbStatus').textContent = '✅ URL сохранён. Перезагрузи страницу.';
+  document.getElementById('fbStatus').style.color = '#27AE60';
+}
+
+function initFirebase() {
+  if (!fbUrl) return;
+  // Регистрируем своё присутствие
+  fetch(`${fbUrl}/online.json`, {
+    method: 'POST',
+    body: JSON.stringify({ role: currentRole, ts: Date.now() })
+  })
+  .then(r=>r.json())
+  .then(res => {
+    myFbKey = res.name;
+    window.addEventListener('beforeunload', () => {
+      navigator.sendBeacon(`${fbUrl}/online/${myFbKey}.json`, JSON.stringify(null));
+    });
+    fbPingTimer = setInterval(fbPing, 25000);
+    fbPollTimer = setInterval(fbPoll, 10000);
+    fbPoll();
+  })
+  .catch(()=>{});
+}
+
+function fbPing() {
+  if (!fbUrl||!myFbKey) return;
+  fetch(`${fbUrl}/online/${myFbKey}/ts.json`, { method:'PUT', body: JSON.stringify(Date.now()) }).catch(()=>{});
+}
+
+function fbPoll() {
+  if (!fbUrl) return;
+  fetch(`${fbUrl}/online.json`)
+  .then(r=>r.json())
+  .then(data => {
+    if (!data) { updateOnline([]); return; }
+    const now = Date.now();
+    const active = Object.entries(data)
+      .filter(([,u])=>u && (now-u.ts)<60000)
+      .map(([,u])=>u);
+    updateOnline(active);
+    // Чистим старые записи (только admin)
+    if (currentRole==='admin') {
+      Object.entries(data).forEach(([k,u])=>{
+        if (u && (now-u.ts)>60000)
+          fetch(`${fbUrl}/online/${k}.json`,{method:'DELETE'}).catch(()=>{});
+      });
+    }
+  })
+  .catch(()=>{});
+}
+
+function updateOnline(active) {
+  const count = active.length;
+  // Бейдж
+  const badge = document.getElementById('onlineBadge');
+  if (currentRole==='admin') {
+    badge.style.display = 'inline-block';
+    document.getElementById('onlineCount').textContent = count;
+  }
+  // Список в панели
+  const list = document.getElementById('onlineList');
+  if (!list) return;
+  if (!count) { list.innerHTML='<div class="online-empty">Никого нет онлайн</div>'; return; }
+  list.innerHTML = active.map(u=>`
+    <div class="online-row">
+      <span class="odot"></span>
+      <span>${u.role==='admin'?'👑 Администратор':'👤 Сотрудник'}</span>
+      <span style="margin-left:auto;color:#bbb;font-size:10px;">${Math.round((Date.now()-u.ts)/1000)}с назад</span>
+    </div>`).join('');
+}
+
+// ════════════════════════════════════════
+//  LOGIN
+// ════════════════════════════════════════
+let loginAttempts = 0, lockUntil = 0;
+
+function doLogin() {
+  const now = Date.now();
+  if (now < lockUntil) {
+    showErr(`Подождите ${Math.ceil((lockUntil-now)/1000)} сек.`);
+    return;
+  }
+  const pwd = document.getElementById('loginPwd').value;
+  const matched = Object.entries(USERS).find(([,p])=>p===pwd);
+  if (matched) {
+    currentRole = matched[0];
+    sessionStorage.setItem(SESSION_KEY, currentRole);
+    loginAttempts = 0;
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('appContent').style.display  = 'block';
+    startApp();
+  } else {
+    loginAttempts++;
+    document.getElementById('loginBox').classList.remove('shake');
+    void document.getElementById('loginBox').offsetWidth;
+    document.getElementById('loginBox').classList.add('shake');
+    if (loginAttempts >= 5) {
+      lockUntil = Date.now() + 30000;
+      loginAttempts = 0;
+      showErr('Слишком много попыток. Подождите 30 сек.');
+      document.getElementById('loginHint').textContent = '';
+    } else {
+      showErr('Неверный пароль');
+      document.getElementById('loginHint').textContent = `Осталось попыток: ${5-loginAttempts}`;
+    }
+    document.getElementById('loginPwd').value = '';
+    document.getElementById('loginPwd').focus();
+  }
+}
+function showErr(m) {
+  const el = document.getElementById('loginError');
+  el.textContent = m;
+  setTimeout(()=>{ if(el.textContent===m) el.textContent=''; }, 3000);
+}
+
+function startApp() {
+  // Если в коде вшита ссылка на Sheets — используем её для всех
+  if (SHEETS_URL) {
+    scriptUrl = SHEETS_URL;
+    employees = enrich(DEMO_RAW); // временно показываем демо
+    updateTs('Загрузка...');
+    renderWorld();
+    fetchScript(); // сразу грузим реальные данные
+    if (currentRole === 'admin') toggleSetup(true);
+    if (fbUrl) initFirebase();
+    return;
+  }
+
+  // Иначе — загружаем сохранённые данные из localStorage
+  let loaded = false;
+  try {
+    const saved = JSON.parse(localStorage.getItem('kcData6') || 'null');
+    if (saved && saved.source === 'manual' && saved.rows?.length) {
+      manualRows = saved.rows;
+      employees  = enrich(saved.rows);
+      updateTs('Ручной ввод');
+      loaded = true;
+    } else if (saved && saved.source === 'sheets' && saved.url) {
+      scriptUrl = saved.url;
+      const inp = document.getElementById('scriptUrl');
+      if (inp) inp.value = saved.url;
+      employees = enrich(DEMO_RAW);
+      updateTs('Загрузка...');
+      loaded = true;
+      fetchScript();
+    }
+  } catch {}
+
+  if (!loaded) {
+    employees = enrich(DEMO_RAW);
+    updateTs('Демо');
+  }
+
+  renderWorld();
+  if (currentRole === 'admin') toggleSetup(true);
+  if (fbUrl) initFirebase();
+}
+
+// ════════════════════════════════════════
+//  INIT — проверяем сессию
+// ════════════════════════════════════════
+(function init() {
+  const role = sessionStorage.getItem(SESSION_KEY);
+  if (role) {
+    currentRole = role;
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('appContent').style.display  = 'block';
+    startApp();
+  } else {
+    setTimeout(()=>document.getElementById('loginPwd').focus(), 100);
+  }
+})();
+</script>
+</body>
+</html>
