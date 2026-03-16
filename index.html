@@ -704,6 +704,8 @@ function updateTs(src) {
 //  DETAIL PANEL
 // ════════════════════════════════════════
 function openPanel(emp) {
+  playSound('click');
+  if (emp.pct >= 100) launchConfettiVisual(1500);
   const t  = getTier(emp.pct);
   const gC = GROUPS[emp.group] || {label:'👥 '+emp.group, color:'#555'};
   document.getElementById('pChar').textContent  = emp.char;
@@ -1275,14 +1277,7 @@ function renderHistoryTab() {
   if (el) el.innerHTML = renderHistory();
 }
 
-// Перехватываем openPanel чтобы добавить звук
-const _origOpenPanel = openPanel;
-function openPanel(emp) {
-  playSound('click');
-  // Конфетти если замок
-  if (emp.pct >= 100) launchConfettiVisual(1500);
-  _origOpenPanel(emp);
-}
+// Звук и конфетти при клике на домик встроены прямо в openPanel ниже
 
 (function init() {
   const role = sessionStorage.getItem(SESSION_KEY);
